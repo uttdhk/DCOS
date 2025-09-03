@@ -1,0 +1,23 @@
+{
+  "name": "fuel-delivery-backend",
+  "version": "1.0.0",
+  "description": "MSSQL 기반 탱크로리 출하 시스템 백엔드",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "mssql": "^10.0.1",
+    "pm2": "^6.0.10"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "author": "uttdhk",
+  "license": "MIT"
+}

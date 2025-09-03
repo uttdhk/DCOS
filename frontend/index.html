@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>탱크로리 출하 시스템</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 로딩 화면 -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>로딩 중...</p>
+        </div>
+
+        <!-- 로그인 화면 -->
+        <div id="login-screen" class="screen">
+            <div class="container">
+                <div class="login-form">
+                    <div class="logo">
+                        <h1>🚛 탱크로리 출하 시스템</h1>
+                        <p>휘발유 · 경유 납품 관리</p>
+                    </div>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="user-id">사용자 ID</label>
+                            <input type="text" id="user-id" name="userId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">비밀번호</label>
+                            <input type="password" id="password" name="password" placeholder="추후 구현 예정">
+                        </div>
+                        <button type="submit" class="btn-primary">로그인</button>
+                    </form>
+                    <div id="login-message" class="message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 화면 -->
+        <div id="main-screen" class="screen hidden">
+            <!-- 헤더 -->
+            <header class="header">
+                <div class="header-content">
+                    <h1>🚛 탱크로리 출하 시스템</h1>
+                    <div class="user-info">
+                        <span id="user-name"></span>
+                        <button id="logout-btn" class="btn-secondary">로그아웃</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 내비게이션 -->
+            <nav class="nav-tabs">
+                <button id="tab-order" class="tab-btn active">출하예고</button>
+                <button id="tab-slip" class="tab-btn">출하실적</button>
+            </nav>
+
+            <!-- 출하예고 화면 -->
+            <div id="order-screen" class="tab-content">
+                <div class="container">
+                    <h2>📋 출하예고 조회</h2>
+                    
+                    <!-- 검색 필터 -->
+                    <div class="search-filters">
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label for="order-plant">출하지</label>
+                                <select id="order-plant" name="plantCode">
+                                    <option value="">전체</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="order-date">출하일자</label>
+                                <input type="date" id="order-date" name="loadingDate">
+                            </div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label for="order-shipment-no">예고번호</label>
+                                <input type="text" id="order-shipment-no" name="shipmentNo" placeholder="예고번호 입력">
+                            </div>
+                            <div class="form-group">
+                                <label for="order-vehicle">차량명</label>
+                                <input type="text" id="order-vehicle" name="vehicleName" placeholder="차량명 입력">
+                            </div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label for="order-driver">기사명</label>
+                                <input type="text" id="order-driver" name="driverName" placeholder="기사명 입력">
+                            </div>
+                            <div class="form-group">
+                                <button id="search-order" class="btn-primary">조회</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 결과 테이블 -->
+                    <div class="table-container">
+                        <table id="order-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>출하지명</th>
+                                    <th>출하일자</th>
+                                    <th>회차</th>
+                                    <th>거래처명</th>
+                                    <th>납지처명</th>
+                                    <th>차량명</th>
+                                    <th>기사명</th>
+                                    <th>제품명</th>
+                                    <th>출하정산방식</th>
+                                    <th>주문량</th>
+                                    <th>출하단위</th>
+                                    <th>전자전표</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order-tbody">
+                                <tr>
+                                    <td colspan="12" class="no-data">조회 버튼을 클릭하여 데이터를 조회하세요.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 상세 정보 -->
+                    <div id="order-detail" class="detail-panel hidden">
+                        <h3>📄 상세 정보</h3>
+                        <div id="order-detail-content"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 출하실적 화면 -->
+            <div id="slip-screen" class="tab-content hidden">
+                <div class="container">
+                    <h2>📊 출하실적 조회</h2>
+                    
+                    <!-- 검색 필터 -->
+                    <div class="search-filters">
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label for="slip-plant">출하지</label>
+                                <select id="slip-plant" name="plantCode">
+                                    <option value="">전체</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="slip-date">출하일자</label>
+                                <input type="date" id="slip-date" name="loadingDate">
+                            </div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label for="slip-shipment-no">예고번호</label>
+                                <input type="text" id="slip-shipment-no" name="shipmentNo" placeholder="예고번호 입력">
+                            </div>
+                            <div class="form-group">
+                                <label for="slip-vehicle">차량명</label>
+                                <input type="text" id="slip-vehicle" name="vehicleName" placeholder="차량명 입력">
+                            </div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label for="slip-driver">기사명</label>
+                                <input type="text" id="slip-driver" name="driverName" placeholder="기사명 입력">
+                            </div>
+                            <div class="form-group">
+                                <button id="search-slip" class="btn-primary">조회</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 결과 테이블 -->
+                    <div class="table-container">
+                        <table id="slip-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>출하지명</th>
+                                    <th>출하일자</th>
+                                    <th>회차</th>
+                                    <th>거래처명</th>
+                                    <th>납지처명</th>
+                                    <th>차량명</th>
+                                    <th>기사명</th>
+                                    <th>제품명</th>
+                                    <th>출하정산방식</th>
+                                    <th>판매량</th>
+                                    <th>판매단위</th>
+                                    <th>전자전표</th>
+                                </tr>
+                            </thead>
+                            <tbody id="slip-tbody">
+                                <tr>
+                                    <td colspan="12" class="no-data">조회 버튼을 클릭하여 데이터를 조회하세요.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 상세 정보 -->
+                    <div id="slip-detail" class="detail-panel hidden">
+                        <h3>📄 상세 정보</h3>
+                        <div id="slip-detail-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메시지 모달 -->
+        <div id="message-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 id="modal-title">알림</h4>
+                    <button id="modal-close" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="modal-message"></p>
+                </div>
+                <div class="modal-footer">
+                    <button id="modal-ok" class="btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/utils/api.js"></script>
+    <script src="src/utils/utils.js"></script>
+    <script src="src/components/auth.js"></script>
+    <script src="src/components/order.js"></script>
+    <script src="src/components/slip.js"></script>
+    <script src="src/app.js"></script>
+</body>
+</html>

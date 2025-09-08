@@ -45,8 +45,38 @@ cd backend
 npm install
 ```
 
+### 1.1 의존성 설치(오프라인에서는...)
+```bash
+1. [온라인PC에서] https://nodejs.org/en/download/에서 Nodejs 다운로드
+  다운로드 링크 : https://nodejs.org/dist/v22.19.0/node-v22.19.0-x64.msi
+2. [온라인PC에서] 설치 후 powershell에서 아래 명령어 수행하여 정상 설치 확인
+  node -v
+  npm -v
+3. [온라인PC에서] npm 패키지 다운로드
+   cd backend
+   npm install --ignore-scripts
+   해당 node_modules 폴더와 package-lock.json을 통째로 압축 → USB로 오프라인 PC에 옮기기
+4. [오프라인PC에서] 프로젝트 폴더에 풀어주면 바로 실행 가능
+```
+
 ### 2. 환경 설정
 `.env` 파일에서 데이터베이스 연결 정보 설정
+
+```bash
+    # Database Configuration
+    DB_SERVER=your-mssql-server-ip-or-hostname
+    DB_USER=your-username
+    DB_PASSWORD=your-password
+    DB_DATABASE=your-database-name
+    DB_PORT=1433
+    
+    # Server Configuration
+    PORT=3000
+    SESSION_SECRET=fuel_delivery_secret_key_2024
+    
+    # Environment
+    NODE_ENV=production
+```
 
 ### 3. 서버 실행
 ```bash

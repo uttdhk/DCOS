@@ -68,9 +68,14 @@ class AuthManager {
                 this.setUser(response.user);
                 
                 // 메인 화면으로 이동
-                setTimeout(() => {
+                setTimeout(async () => {
                     showMainScreen();
                     this.clearLoginForm();
+                    
+                    // 메인 화면 초기화
+                    if (typeof window.app !== 'undefined') {
+                        await window.app.initMainScreen();
+                    }
                 }, 1000);
             }
         } catch (error) {

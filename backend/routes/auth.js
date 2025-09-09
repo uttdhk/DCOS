@@ -15,15 +15,22 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // 데모 모드: 목업 데이터에서 사용자 조회
-        const user = mockUsers.find(u => u.USR_ID === userId);
+        const pool = getPool();
+        const request = pool.request();
         
-        if (!user) {
+        // TB_USR 테이블에서 사용자 조회
+        const result = await request
+            .input('userId', sql.VarChar, userId)
+            .query('SELECT USR_ID, USR_NAME FROM TB_USR WHERE USR_ID = @userId');
+        
+        if (result.recordset.length === 0) {
             return res.status(401).json({
                 success: false,
                 message: '존재하지 않는 사용자ID입니다.'
             });
         }
+
+        const user = result.recordset[0];
         
         // 세션에 사용자 정보 저장
         req.session.user = {

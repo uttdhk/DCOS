@@ -3,6 +3,9 @@
 class OrderManager {
     constructor() {
         this.currentData = [];
+        this.currentPage = 1;
+        this.totalCount = 0;
+        this.hasNext = false;
         this.initEventListeners();
     }
 
@@ -11,7 +14,13 @@ class OrderManager {
         // 조회 버튼 이벤트
         const searchBtn = document.getElementById('search-order');
         if (searchBtn) {
-            searchBtn.addEventListener('click', this.handleSearch.bind(this));
+            searchBtn.addEventListener('click', () => this.handleSearch(true));
+        }
+        
+        // 더보기 버튼 이벤트
+        const loadMoreBtn = document.getElementById('load-more-order');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => this.loadMore());
         }
 
         // Enter 키로 검색
@@ -19,7 +28,7 @@ class OrderManager {
         inputs.forEach(input => {
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
-                    this.handleSearch();
+                    this.handleSearch(true);
                 }
             });
         });
@@ -53,19 +62,36 @@ class OrderManager {
     }
 
     // 검색 처리
-    async handleSearch() {
+    async handleSearch(reset = false) {
         try {
             showLoading();
             
+            // 새 검색인 경우 페이지 리셋
+            if (reset) {
+                this.currentPage = 1;
+                this.currentData = [];
+            }
+            
             // 검색 조건 수집
             const params = this.getSearchParams();
+            params.page = this.currentPage;
+            params.limit = 20;
             
             // API 호출
             const response = await orderAPI.getShipments(params);
             
             if (response.success) {
-                this.currentData = response.data;
-                this.renderTable(response.data);
+                if (reset) {
+                    this.currentData = response.data;
+                } else {
+                    this.currentData = [...this.currentData, ...response.data];
+                }
+                
+                this.totalCount = response.pagination?.total || response.data.length;
+                this.hasNext = response.pagination?.hasNext || false;
+                
+                this.renderTable(this.currentData);
+                this.updateLoadMoreButton();
                 
                 // 상세 정보 패널 숨김
                 document.getElementById('order-detail').classList.add('hidden');
@@ -77,6 +103,12 @@ class OrderManager {
         } finally {
             hideLoading();
         }
+    }
+    
+    // 더보기 처리
+    async loadMore() {
+        this.currentPage++;
+        await this.handleSearch(false);
     }
 
     // 검색 조건 수집
@@ -103,12 +135,14 @@ class OrderManager {
         const tbody = document.getElementById('order-tbody');
         
         if (!data || data.length === 0) {
-            tbody.innerHTML = createEmptyRow(12, '조회된 데이터가 없습니다.');
+            tbody.innerHTML = createEmptyRow(13, '조회된 데이터가 없습니다.');
+            this.updateResultInfo(0);
             return;
         }
 
         const rows = data.map((item, index) => `
             <tr onclick="orderManager.selectRow(${index})" data-index="${index}">
+                <td>${index + 1}</td>
                 <td>${item.PLANT_NAME || ''}</td>
                 <td>${formatDate(item.LOADING_DATE) || ''}</td>
                 <td>${item.TRIP || ''}</td>
@@ -125,6 +159,31 @@ class OrderManager {
         `).join('');
 
         tbody.innerHTML = rows;
+        this.updateResultInfo(this.totalCount);
+    }
+    
+    // 결과 정보 업데이트
+    updateResultInfo(total) {
+        const resultInfo = document.getElementById('order-result-info');
+        if (resultInfo) {
+            resultInfo.innerHTML = `
+                <span class="result-count">조회 결과: <strong>${total}건</strong></span>
+                <span class="current-display">현재 표시: <strong>${this.currentData.length}건</strong></span>
+            `;
+        }
+    }
+    
+    // 더보기 버튼 업데이트
+    updateLoadMoreButton() {
+        const loadMoreBtn = document.getElementById('load-more-order');
+        if (loadMoreBtn) {
+            if (this.hasNext && this.currentData.length > 0) {
+                loadMoreBtn.style.display = 'block';
+                loadMoreBtn.textContent = `더보기 (${this.currentData.length}/${this.totalCount})`;
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
     }
 
     // 행 선택 처리
@@ -133,10 +192,104 @@ class OrderManager {
         const selectedRow = table.querySelector(`tr[data-index="${index}"]`);
         
         if (selectedRow) {
+            // 기존 상세 행 제거
+            this.removeDetailRow();
+            
             handleRowSelection(table, selectedRow, () => {
-                this.showDetail(this.currentData[index]);
+                this.showDetailInline(this.currentData[index], selectedRow);
             });
         }
+    }
+    
+    // 인라인 상세 정보 표시
+    showDetailInline(data, afterRow) {
+        const detailRow = document.createElement('tr');
+        detailRow.className = 'detail-row';
+        detailRow.innerHTML = `
+            <td colspan="13" class="detail-cell">
+                <div class="inline-detail-content">
+                    ${this.generateDetailHTML(data)}
+                </div>
+            </td>
+        `;
+        
+        afterRow.insertAdjacentElement('afterend', detailRow);
+    }
+    
+    // 상세 행 제거
+    removeDetailRow() {
+        const existingDetailRow = document.querySelector('.detail-row');
+        if (existingDetailRow) {
+            existingDetailRow.remove();
+        }
+    }
+    
+    // 상세 HTML 생성
+    generateDetailHTML(data) {
+        return `
+            <div class="detail-grid">
+                <div class="detail-section">
+                    <h4>📋 기본 정보</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">예고번호:</span>
+                        <span class="detail-value">${data.SHIPMENT_NO || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">출하일자:</span>
+                        <span class="detail-value">${formatDate(data.LOADING_DATE) || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">회차:</span>
+                        <span class="detail-value">${data.TRIP || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">주문형태:</span>
+                        <span class="detail-value">${getOrderTypeText(data.ORDER_TYPE)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">처리상태:</span>
+                        <span class="detail-value status-indicator status-${data.STATUS}">${getStatusText(data.STATUS)}</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h4>🏢 거래처 정보</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">출하지:</span>
+                        <span class="detail-value">${data.PLANT_NAME || ''} (${data.PLANT_CODE || ''})</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">거래처:</span>
+                        <span class="detail-value">${data.SOLD_TO_NAME || ''} (${data.SOLD_TO_CODE || ''})</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">납지처:</span>
+                        <span class="detail-value">${data.SHIP_TO_NAME || ''} (${data.SHIP_TO_CODE || ''})</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h4>🚛 차량 정보</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">차량번호:</span>
+                        <span class="detail-value">${data.VEHICLE_NO || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">기사명:</span>
+                        <span class="detail-value">${data.DRIVER_NAME || ''} (${data.DRIVER_CODE || ''})</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h4>⛽ 제품 정보</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">제품명:</span>
+                        <span class="detail-value">${data.MTRL_NAME || ''} (${data.MTRL_CODE || ''})</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">주문량:</span>
+                        <span class="detail-value">${formatNumber(data.ORDER_QTY)} ${data.UOM || ''}</span>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     // 상세 정보 표시

@@ -26,15 +26,12 @@ const connectToDatabase = async () => {
             return pool;
         }
         
-        // 데모 모드: 실제 DB 연결 대신 목업 데이터 사용
-        console.log('데모 모드: 목업 데이터베이스 연결 시뮬레이션');
-        pool = { connected: true, demo: true };
+        pool = await sql.connect(config);
+        console.log('MSSQL 데이터베이스 연결 성공');
         return pool;
     } catch (error) {
         console.error('데이터베이스 연결 실패:', error);
-        // 데모 모드에서는 에러를 던지지 않고 목업 연결 반환
-        pool = { connected: false, demo: true };
-        return pool;
+        throw error;
     }
 };
 

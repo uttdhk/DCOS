@@ -97,11 +97,15 @@
                         </div>
                     </div>
 
+                    <!-- 결과 정보 -->
+                    <div id="order-result-info" class="result-info"></div>
+                    
                     <!-- 결과 테이블 -->
                     <div class="table-container">
                         <table id="order-table" class="data-table">
                             <thead>
                                 <tr>
+                                    <th>순번</th>
                                     <th>출하지명</th>
                                     <th>출하일자</th>
                                     <th>회차</th>
@@ -118,10 +122,17 @@
                             </thead>
                             <tbody id="order-tbody">
                                 <tr>
-                                    <td colspan="12" class="no-data">조회 버튼을 클릭하여 데이터를 조회하세요.</td>
+                                    <td colspan="13" class="no-data">조회 버튼을 클릭하여 데이터를 조회하세요.</td>
                                 </tr>
                             </tbody>
                         </table>
+                        
+                        <!-- 더보기 버튼 -->
+                        <div class="load-more-container">
+                            <button id="load-more-order" class="btn-secondary load-more-btn" style="display: none;">
+                                더보기
+                            </button>
+                        </div>
                     </div>
 
                     <!-- 상세 정보 -->
@@ -172,11 +183,15 @@
                         </div>
                     </div>
 
+                    <!-- 결과 정보 -->
+                    <div id="slip-result-info" class="result-info"></div>
+                    
                     <!-- 결과 테이블 -->
                     <div class="table-container">
                         <table id="slip-table" class="data-table">
                             <thead>
                                 <tr>
+                                    <th>순번</th>
                                     <th>출하지명</th>
                                     <th>출하일자</th>
                                     <th>회차</th>
@@ -193,10 +208,17 @@
                             </thead>
                             <tbody id="slip-tbody">
                                 <tr>
-                                    <td colspan="12" class="no-data">조회 버튼을 클릭하여 데이터를 조회하세요.</td>
+                                    <td colspan="13" class="no-data">조회 버튼을 클릭하여 데이터를 조회하세요.</td>
                                 </tr>
                             </tbody>
                         </table>
+                        
+                        <!-- 더보기 버튼 -->
+                        <div class="load-more-container">
+                            <button id="load-more-slip" class="btn-secondary load-more-btn" style="display: none;">
+                                더보기
+                            </button>
+                        </div>
                     </div>
 
                     <!-- 상세 정보 -->

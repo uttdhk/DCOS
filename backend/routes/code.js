@@ -7,10 +7,21 @@ const router = express.Router();
 // 출하지 코드 조회 (CODE_ID = 'DPT')
 router.get('/plants', checkSession, async (req, res) => {
     try {
-        // 데모 모드: 목업 데이터 반환
+        const pool = getPool();
+        const request = pool.request();
+        
+        const result = await request.query(`
+            SELECT 
+                CODE_NO as PLANT_CODE,
+                CODE_NAME as PLANT_NAME
+            FROM TB_CODE 
+            WHERE CODE_ID = 'DPT'
+            ORDER BY CODE_NO
+        `);
+        
         res.json({
             success: true,
-            data: mockPlants
+            data: result.recordset
         });
 
     } catch (error) {

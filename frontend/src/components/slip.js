@@ -3,6 +3,9 @@
 class SlipManager {
     constructor() {
         this.currentData = [];
+        this.currentPage = 1;
+        this.totalCount = 0;
+        this.hasNext = false;
         this.initEventListeners();
     }
 
@@ -11,7 +14,13 @@ class SlipManager {
         // 조회 버튼 이벤트
         const searchBtn = document.getElementById('search-slip');
         if (searchBtn) {
-            searchBtn.addEventListener('click', this.handleSearch.bind(this));
+            searchBtn.addEventListener('click', () => this.handleSearch(true));
+        }
+        
+        // 더보기 버튼 이벤트
+        const loadMoreBtn = document.getElementById('load-more-slip');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => this.loadMore());
         }
 
         // Enter 키로 검색
@@ -19,7 +28,7 @@ class SlipManager {
         inputs.forEach(input => {
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
-                    this.handleSearch();
+                    this.handleSearch(true);
                 }
             });
         });
@@ -53,19 +62,36 @@ class SlipManager {
     }
 
     // 검색 처리
-    async handleSearch() {
+    async handleSearch(reset = false) {
         try {
             showLoading();
             
+            // 새 검색인 경우 페이지 리셋
+            if (reset) {
+                this.currentPage = 1;
+                this.currentData = [];
+            }
+            
             // 검색 조건 수집
             const params = this.getSearchParams();
+            params.page = this.currentPage;
+            params.limit = 20;
             
             // API 호출
             const response = await slipAPI.getSlips(params);
             
             if (response.success) {
-                this.currentData = response.data;
-                this.renderTable(response.data);
+                if (reset) {
+                    this.currentData = response.data;
+                } else {
+                    this.currentData = [...this.currentData, ...response.data];
+                }
+                
+                this.totalCount = response.pagination?.total || response.data.length;
+                this.hasNext = response.pagination?.hasNext || false;
+                
+                this.renderTable(this.currentData);
+                this.updateLoadMoreButton();
                 
                 // 상세 정보 패널 숨김
                 document.getElementById('slip-detail').classList.add('hidden');
@@ -77,6 +103,12 @@ class SlipManager {
         } finally {
             hideLoading();
         }
+    }
+    
+    // 더보기 처리
+    async loadMore() {
+        this.currentPage++;
+        await this.handleSearch(false);
     }
 
     // 검색 조건 수집
@@ -103,12 +135,14 @@ class SlipManager {
         const tbody = document.getElementById('slip-tbody');
         
         if (!data || data.length === 0) {
-            tbody.innerHTML = createEmptyRow(12, '조회된 데이터가 없습니다.');
+            tbody.innerHTML = createEmptyRow(13, '조회된 데이터가 없습니다.');
+            this.updateResultInfo(0);
             return;
         }
 
         const rows = data.map((item, index) => `
             <tr onclick="slipManager.selectRow(${index})" data-index="${index}">
+                <td>${index + 1}</td>
                 <td>${item.PLANT_NAME || ''}</td>
                 <td>${formatDate(item.LOADING_DATE) || ''}</td>
                 <td>${item.TRIP || ''}</td>
@@ -125,6 +159,31 @@ class SlipManager {
         `).join('');
 
         tbody.innerHTML = rows;
+        this.updateResultInfo(this.totalCount);
+    }
+    
+    // 결과 정보 업데이트
+    updateResultInfo(total) {
+        const resultInfo = document.getElementById('slip-result-info');
+        if (resultInfo) {
+            resultInfo.innerHTML = `
+                <span class="result-count">조회 결과: <strong>${total}건</strong></span>
+                <span class="current-display">현재 표시: <strong>${this.currentData.length}건</strong></span>
+            `;
+        }
+    }
+    
+    // 더보기 버튼 업데이트
+    updateLoadMoreButton() {
+        const loadMoreBtn = document.getElementById('load-more-slip');
+        if (loadMoreBtn) {
+            if (this.hasNext && this.currentData.length > 0) {
+                loadMoreBtn.style.display = 'block';
+                loadMoreBtn.textContent = `더보기 (${this.currentData.length}/${this.totalCount})`;
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
     }
 
     // 행 선택 처리
@@ -133,10 +192,86 @@ class SlipManager {
         const selectedRow = table.querySelector(`tr[data-index="${index}"]`);
         
         if (selectedRow) {
+            // 기존 상세 행 제거
+            this.removeDetailRow();
+            
             handleRowSelection(table, selectedRow, () => {
-                this.showDetail(this.currentData[index]);
+                this.showDetailInline(this.currentData[index], selectedRow);
             });
         }
+    }
+    
+    // 인라인 상세 정보 표시
+    showDetailInline(data, afterRow) {
+        const detailRow = document.createElement('tr');
+        detailRow.className = 'detail-row';
+        detailRow.innerHTML = `
+            <td colspan="13" class="detail-cell">
+                <div class="inline-detail-content">
+                    ${this.generateDetailHTML(data)}
+                </div>
+            </td>
+        `;
+        
+        afterRow.insertAdjacentElement('afterend', detailRow);
+    }
+    
+    // 상세 행 제거
+    removeDetailRow() {
+        const existingDetailRow = document.querySelector('.detail-row');
+        if (existingDetailRow) {
+            existingDetailRow.remove();
+        }
+    }
+    
+    // 상세 HTML 생성
+    generateDetailHTML(data) {
+        return `
+            <div class="detail-grid">
+                <div class="detail-section">
+                    <h4>📋 기본 정보</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">예고번호:</span>
+                        <span class="detail-value">${data.SHIPMENT_NO || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">출하일자:</span>
+                        <span class="detail-value">${formatDate(data.LOADING_DATE) || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">회차:</span>
+                        <span class="detail-value">${data.TRIP || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">처리상태:</span>
+                        <span class="detail-value status-indicator status-${data.ORDER_STATUS}">${getStatusText(data.ORDER_STATUS)}</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h4>📊 수량 정보</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">판매량:</span>
+                        <span class="detail-value">${formatNumber(data.SALES_QTY)} ${data.SALES_UOM || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">GROSS량:</span>
+                        <span class="detail-value">${formatNumber(data.GROSS_QTY)} ${data.GROSS_UOM || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">NET량:</span>
+                        <span class="detail-value">${formatNumber(data.NET_QTY)} ${data.NET_UOM || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">밀도:</span>
+                        <span class="detail-value">${data.DENSITY || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">온도:</span>
+                        <span class="detail-value">${data.TEMPERATURE || ''}°C</span>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     // 상세 정보 표시

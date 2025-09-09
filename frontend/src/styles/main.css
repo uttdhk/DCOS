@@ -493,3 +493,94 @@ body {
     font-style: italic;
     padding: 20px !important;
 }
+
+/* Result Info */
+.result-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #495057;
+}
+
+.result-count {
+    color: #667eea;
+    font-weight: bold;
+}
+
+.current-display {
+    color: #6c757d;
+}
+
+/* Load More Button */
+.load-more-container {
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.load-more-btn {
+    background: #f8f9fa;
+    color: #495057;
+    border: 2px solid #e9ecef;
+    padding: 12px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.load-more-btn:hover {
+    background: #e9ecef;
+    border-color: #667eea;
+    color: #667eea;
+}
+
+/* Inline Detail Row */
+.detail-row {
+    background: #f8f9fa;
+}
+
+.detail-cell {
+    padding: 0 !important;
+    border: none !important;
+}
+
+.inline-detail-content {
+    padding: 20px;
+    border-left: 4px solid #667eea;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.inline-detail-content .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.inline-detail-content .detail-section h4 {
+    color: #667eea;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.inline-detail-content .detail-item {
+    display: flex;
+    padding: 5px 0;
+    font-size: 13px;
+}
+
+.inline-detail-content .detail-label {
+    font-weight: bold;
+    color: #495057;
+    min-width: 100px;
+    margin-right: 10px;
+}
+
+.inline-detail-content .detail-value {
+    color: #212529;
+    flex: 1;
+}

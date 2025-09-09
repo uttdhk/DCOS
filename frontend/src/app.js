@@ -84,17 +84,10 @@ class App {
             // 인증 매니저 초기화
             await authManager.init();
             
-            // 메인 화면이 표시된 경우에만 추가 초기화 수행
+            // 메인 화면이 표시된 경우 추가 초기화 수행
             const mainScreen = document.getElementById('main-screen');
             if (!mainScreen.classList.contains('hidden')) {
-                // 출하예고 매니저 초기화
-                await orderManager.init();
-                
-                // 출하실적 매니저 초기화
-                await slipManager.init();
-                
-                // 기본 탭을 출하예고로 설정
-                this.switchTab('order');
+                await this.initMainScreen();
             }
 
         } catch (error) {
@@ -104,12 +97,30 @@ class App {
             hideLoading();
         }
     }
+
+    // 메인 화면 초기화
+    async initMainScreen() {
+        try {
+            // 출하예고 매니저 초기화
+            await orderManager.init();
+            
+            // 출하실적 매니저 초기화
+            await slipManager.init();
+            
+            // 기본 탭을 출하예고로 설정
+            this.switchTab('order');
+            
+        } catch (error) {
+            console.error('메인 화면 초기화 실패:', error);
+            showMessage('초기화 오류', '화면 초기화 중 오류가 발생했습니다.');
+        }
+    }
 }
 
 // DOM이 로드되면 앱 시작
 document.addEventListener('DOMContentLoaded', async () => {
-    const app = new App();
-    await app.init();
+    window.app = new App();
+    await window.app.init();
 });
 
 // 브라우저 새로고침/종료 시 경고 (개발 중에는 주석 처리 가능)

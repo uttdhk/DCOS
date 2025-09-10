@@ -65,7 +65,8 @@ router.get('/slip', checkSession, async (req, res) => {
                 E_SLIP,
                 ORDER_STATUS,
                 STATUS_CODE,
-                STATUS_TEXT
+                STATUS_TEXT,
+                COUNT(*) OVER() AS TOTAL_COUNT
             FROM TB_SLIP 
             WHERE DELETE_BIT = 'N'
         `;
@@ -98,14 +99,18 @@ router.get('/slip', checkSession, async (req, res) => {
         query += ' ORDER BY LOADING_DATE DESC, SHIPMENT_NO';
         
         // 전체 건수 조회
-        const countQuery = query.replace('SELECT LOADING_DATE,', 'SELECT COUNT(*) as TOTAL_COUNT FROM (SELECT LOADING_DATE,').replace(' ORDER BY LOADING_DATE DESC, SHIPMENT_NO', ') AS CountTable');
-        const countResult = await request.query(countQuery);
-        const totalCount = countResult.recordset[0].TOTAL_COUNT;
+        //const countQuery = query.replace('SELECT LOADING_DATE,', 'SELECT COUNT(*) as TOTAL_COUNT FROM (SELECT LOADING_DATE,').replace(' ORDER BY LOADING_DATE DESC, SHIPMENT_NO', ') AS CountTable');
+        //const countResult = await request.query(countQuery);
+        //const totalCount = countResult.recordset[0].TOTAL_COUNT;
         
         // 페이징 적용
         query += ` OFFSET ${offset} ROWS FETCH NEXT ${limitNum} ROWS ONLY`;
 
         const result = await request.query(query);
+        
+        // 전체 건수 조회
+        const rows = result.recordset;
+        const totalCount = rows.length ? rows[0].TOTAL_COUNT : 0;
         
         res.json({
             success: true,

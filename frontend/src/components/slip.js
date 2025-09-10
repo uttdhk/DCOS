@@ -243,10 +243,83 @@ class SlipManager {
                         <span class="detail-value">${data.TRIP || ''}</span>
                     </div>
                     <div class="detail-item">
+                        <span class="detail-label">주문형태:</span>
+                        <span class="detail-value">${getOrderTypeText(data.ORDER_TYPE)}</span>
+                    </div>
+                    <div class="detail-item">
                         <span class="detail-label">처리상태:</span>
                         <span class="detail-value status-indicator status-${data.ORDER_STATUS}">${getStatusText(data.ORDER_STATUS)}</span>
                     </div>
                 </div>
+
+                <div class="detail-section">
+                    <h4>🏢 거래처 정보</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">출하지:</span>
+                        <span class="detail-value">${data.PLANT_NAME || ''} (${data.PLANT_CODE || ''})</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">교환사:</span>
+                        <span class="detail-value">${data.EXC_VENDOR_NAME || ''} (${data.EXC_VENDOR || ''})</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">거래처:</span>
+                        <span class="detail-value">${data.SOLD_TO_NAME || ''} (${data.SOLD_TO_CODE || ''})</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">납지처:</span>
+                        <span class="detail-value">${data.SHIP_TO_NAME || ''} (${data.SHIP_TO_CODE || ''})</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">수송사:</span>
+                        <span class="detail-value">${data.CARRIER_NAME || ''} (${data.CARRIER_CODE || ''})</span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>🚛 차량 정보</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">차량번호:</span>
+                        <span class="detail-value">${data.VEHICLE_NO || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">차량명:</span>
+                        <span class="detail-value">${data.VEHICLE_NAME || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">차량카드번호:</span>
+                        <span class="detail-value">${data.VEHICLE_CARD_NO || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">기사명:</span>
+                        <span class="detail-value">${data.DRIVER_NAME || ''} (${data.DRIVER_CODE || ''})</span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>⛽ 제품 정보</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">주문제품:</span>
+                        <span class="detail-value">${data.ORDER_MTRL_NAME || ''} (${data.ORDER_MTRL_CODE || ''})</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">판매제품:</span>
+                        <span class="detail-value">${data.SALES_MTRL_NAME || ''} (${data.SALES_MTRL_CODE || ''})</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">출하정산방식:</span>
+                        <span class="detail-value">${getGnIndicatorText(data.GN_INDICATOR)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">혼합율:</span>
+                        <span class="detail-value">${data.MIX_RATE || ''}${data.MIX_RATE ? '%' : ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">첨가제:</span>
+                        <span class="detail-value">${getAdditiveText(data.ADDITIVE)}</span>
+                    </div>
+                </div>
+
                 <div class="detail-section">
                     <h4>📊 수량 정보</h4>
                     <div class="detail-item">
@@ -268,6 +341,46 @@ class SlipManager {
                     <div class="detail-item">
                         <span class="detail-label">온도:</span>
                         <span class="detail-value">${data.TEMPERATURE || ''}°C</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">황함량:</span>
+                        <span class="detail-value">${data.SURFUR || ''}</span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>📄 처리 정보</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">전자전표:</span>
+                        <span class="detail-value">${getESlipText(data.E_SLIP)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">증빙번호:</span>
+                        <span class="detail-value">${data.ARMY_CODE || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">전송상태:</span>
+                        <span class="detail-value">${data.SEND_BIT === 'Y' ? '전송완료' : '전송전'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">처리코드:</span>
+                        <span class="detail-value">${data.STATUS_CODE || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">처리내용:</span>
+                        <span class="detail-value">${data.STATUS_TEXT || ''}</span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>🕒 시간 정보</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">수신일시:</span>
+                        <span class="detail-value">${formatDate(data.INTERFACE_DATE)} ${data.INTERFACE_TIME ? data.INTERFACE_TIME.substring(0,2) + ':' + data.INTERFACE_TIME.substring(2,4) + ':' + data.INTERFACE_TIME.substring(4,6) : ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">처리일시:</span>
+                        <span class="detail-value">${formatDate(data.SYSTEM_DATE)} ${data.SYSTEM_TIME ? data.SYSTEM_TIME.substring(0,2) + ':' + data.SYSTEM_TIME.substring(2,4) + ':' + data.SYSTEM_TIME.substring(4,6) : ''}</span>
                     </div>
                 </div>
             </div>

@@ -251,6 +251,7 @@ class OrderManager {
                         <span class="detail-value status-indicator status-${data.STATUS}">${getStatusText(data.STATUS)}</span>
                     </div>
                 </div>
+
                 <div class="detail-section">
                     <h4>🏢 거래처 정보</h4>
                     <div class="detail-item">
@@ -265,7 +266,12 @@ class OrderManager {
                         <span class="detail-label">납지처:</span>
                         <span class="detail-value">${data.SHIP_TO_NAME || ''} (${data.SHIP_TO_CODE || ''})</span>
                     </div>
+                    <div class="detail-item">
+                        <span class="detail-label">수송사:</span>
+                        <span class="detail-value">${data.CARRIER_NAME || ''} (${data.CARRIER_CODE || ''})</span>
+                    </div>
                 </div>
+
                 <div class="detail-section">
                     <h4>🚛 차량 정보</h4>
                     <div class="detail-item">
@@ -273,10 +279,19 @@ class OrderManager {
                         <span class="detail-value">${data.VEHICLE_NO || ''}</span>
                     </div>
                     <div class="detail-item">
+                        <span class="detail-label">차량명:</span>
+                        <span class="detail-value">${data.VEHICLE_NAME || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">차량카드번호:</span>
+                        <span class="detail-value">${data.VEHICLE_CARD_NO || ''}</span>
+                    </div>
+                    <div class="detail-item">
                         <span class="detail-label">기사명:</span>
                         <span class="detail-value">${data.DRIVER_NAME || ''} (${data.DRIVER_CODE || ''})</span>
                     </div>
                 </div>
+
                 <div class="detail-section">
                     <h4>⛽ 제품 정보</h4>
                     <div class="detail-item">
@@ -286,6 +301,38 @@ class OrderManager {
                     <div class="detail-item">
                         <span class="detail-label">주문량:</span>
                         <span class="detail-value">${formatNumber(data.ORDER_QTY)} ${data.UOM || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">출하정산방식:</span>
+                        <span class="detail-value">${getGnIndicatorText(data.GN_INDICATOR)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">혼합율:</span>
+                        <span class="detail-value">${data.MIX_RATE || ''}${data.MIX_RATE ? '%' : ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">첨가제:</span>
+                        <span class="detail-value">${getAdditiveText(data.ADDITIVE)}</span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>📄 기타 정보</h4>
+                    <div class="detail-item">
+                        <span class="detail-label">전자전표:</span>
+                        <span class="detail-value">${getESlipText(data.E_SLIP)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">증빙번호:</span>
+                        <span class="detail-value">${data.ARMY_CODE || ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">수신일시:</span>
+                        <span class="detail-value">${formatDate(data.INTERFACE_DATE)} ${data.INTERFACE_TIME ? data.INTERFACE_TIME.substring(0,2) + ':' + data.INTERFACE_TIME.substring(2,4) + ':' + data.INTERFACE_TIME.substring(4,6) : ''}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">처리일시:</span>
+                        <span class="detail-value">${formatDate(data.SYSTEM_DATE)} ${data.SYSTEM_TIME ? data.SYSTEM_TIME.substring(0,2) + ':' + data.SYSTEM_TIME.substring(2,4) + ':' + data.SYSTEM_TIME.substring(4,6) : ''}</span>
                     </div>
                 </div>
             </div>

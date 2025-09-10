@@ -68,6 +68,42 @@ INSERT INTO TB_CODE VALUES ('DPT', '1000', '울산공장', '울산 출하지', G
 INSERT INTO TB_CODE VALUES ('DPT', '1001', '여수공장', '여수 출하지', GETDATE(), 'admin', NULL, NULL, 'Yeosu Plant');
 ```
 
+### TB_TICKET 테이블:
+```sql
+CREATE TABLE TB_TICKET (
+  SHIPMENT_NO     varchar(10) NOT NULL,   -- 예고번호
+  TICKET_CONTENTS text        NOT NULL,   -- 출하전표 내용
+  CRE_DATE        datetime    NULL,       -- 생성일자
+  CRE_USER_NAME   varchar(20) NULL,       -- 생성자
+  CONSTRAINT PK_TICKET PRIMARY KEY CLUSTERED (SHIPMENT_NO ASC)
+);
+
+-- 테스트 출하전표 데이터
+INSERT INTO TB_TICKET VALUES (
+  'SH20250902001', 
+  '출하장 : 울산공장' + CHAR(13) + CHAR(10) + 
+  '거래형태 : 판매' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+  '예고번호 : SH20250902001' + CHAR(13) + CHAR(10) +
+  '출하일자 : 2025-09-02' + CHAR(13) + CHAR(10) +
+  '거래처 : GS칼텍스' + CHAR(13) + CHAR(10) +
+  '납지처 : 부산주유소' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+  '제품명 : 휘발유(RON92)' + CHAR(13) + CHAR(10) +
+  '주문량 : 20,000 L' + CHAR(13) + CHAR(10) +
+  '실제량 : 19,850 L' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+  '차량정보' + CHAR(13) + CHAR(10) +
+  '차량번호 : 12가3456' + CHAR(13) + CHAR(10) +
+  '기사명 : 김기사' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+  '품질정보' + CHAR(13) + CHAR(10) +
+  '밀도 : 0.7450' + CHAR(13) + CHAR(10) +
+  '온도 : 15.2°C' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+  '출하완료 확인' + CHAR(13) + CHAR(10) +
+  '출하시간 : 14:00' + CHAR(13) + CHAR(10) +
+  '확인자 : 출하담당자',
+  GETDATE(), 
+  'admin'
+);
+```
+
 ## 4. 서버 재시작
 
 ```bash

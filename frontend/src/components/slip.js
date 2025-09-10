@@ -373,6 +373,16 @@ class SlipManager {
                 </div>
 
                 <div class="detail-section">
+                    <h4>📄 출하전표</h4>
+                    <div class="detail-item ticket-button-item">
+                        <button class="btn-ticket" onclick="slipManager.showTicket('${data.SHIPMENT_NO}')">
+                            🎫 출하전표 보기
+                        </button>
+                    </div>
+                    <div id="ticket-content-${data.SHIPMENT_NO}" class="ticket-content hidden"></div>
+                </div>
+                
+                <div class="detail-section">
                     <h4>🕒 시간 정보</h4>
                     <div class="detail-item">
                         <span class="detail-label">수신일시:</span>
@@ -554,6 +564,55 @@ class SlipManager {
 
         detailContent.innerHTML = detailHtml;
         detailPanel.classList.remove('hidden');
+    }
+
+    // 출하전표 조회 및 표시
+    async showTicket(shipmentNo) {
+        try {
+            showLoading();
+            
+            const ticketContentElement = document.getElementById(`ticket-content-${shipmentNo}`);
+            
+            // 이미 표시된 경우 토글
+            if (!ticketContentElement.classList.contains('hidden')) {
+                ticketContentElement.classList.add('hidden');
+                return;
+            }
+            
+            // API 호출
+            const response = await slipAPI.getTicket(shipmentNo);
+            
+            if (response.success) {
+                const contents = response.data.contents || '';
+                
+                // CRLF(\r\n)를 <br>로 변환하여 HTML에 표시
+                const formattedContents = contents
+                    .replace(/\r\n/g, '<br>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/\r/g, '<br>');
+                
+                ticketContentElement.innerHTML = `
+                    <div class="ticket-display">
+                        <div class="ticket-header">
+                            <h5>📄 출하전표 내용</h5>
+                            <button class="ticket-close" onclick="document.getElementById('ticket-content-${shipmentNo}').classList.add('hidden')">
+                                ✕
+                            </button>
+                        </div>
+                        <div class="ticket-body">
+                            <pre class="ticket-text">${formattedContents}</pre>
+                        </div>
+                    </div>
+                `;
+                
+                ticketContentElement.classList.remove('hidden');
+            }
+            
+        } catch (error) {
+            handleError(error, '출하전표 조회 중 오류가 발생했습니다.');
+        } finally {
+            hideLoading();
+        }
     }
 
     // 초기화

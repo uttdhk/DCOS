@@ -1,7 +1,7 @@
 const express = require('express');
 const { getPool, sql } = require('../config/database');
 const { checkSession } = require('../middleware/auth');
-const { mockSlips } = require('../data/mockData');
+const { mockSlips, mockTickets } = require('../data/mockData');
 const router = express.Router();
 
 // 출하실적 조회
@@ -167,6 +167,73 @@ router.get('/slip/:shipmentNo', checkSession, async (req, res) => {
         res.status(500).json({
             success: false,
             message: '출하실적 상세 조회 중 오류가 발생했습니다.'
+        });
+    }
+});
+
+// 출하전표 조회
+router.get('/ticket/:shipmentNo', checkSession, async (req, res) => {
+    try {
+        const { shipmentNo } = req.params;
+        
+        const pool = getPool();
+        
+        // 데모 모드 체크
+        if (pool && pool.demo) {
+            // 목업 데이터에서 조회
+            const ticket = mockTickets.find(t => t.SHIPMENT_NO === shipmentNo);
+            
+            if (!ticket) {
+                return res.status(404).json({
+                    success: false,
+                    message: '해당 예고번호의 출하전표를 찾을 수 없습니다.'
+                });
+            }
+
+            res.json({
+                success: true,
+                data: {
+                    shipmentNo: shipmentNo,
+                    contents: ticket.TICKET_CONTENTS
+                }
+            });
+            return;
+        }
+        
+        // 실제 DB 조회
+        const request = pool.request();
+        
+        const result = await request
+            .input('shipmentNo', sql.VarChar, shipmentNo)
+            .query(`
+                SELECT TICKET_CONTENTS 
+                FROM TB_TICKET 
+                WHERE SHIPMENT_NO = @shipmentNo
+            `);
+        
+        if (result.recordset.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: '해당 예고번호의 출하전표를 찾을 수 없습니다.'
+            });
+        }
+
+        // CRLF(\r\n) 문자를 처리하여 반환
+        const ticketContents = result.recordset[0].TICKET_CONTENTS || '';
+        
+        res.json({
+            success: true,
+            data: {
+                shipmentNo: shipmentNo,
+                contents: ticketContents
+            }
+        });
+
+    } catch (error) {
+        console.error('출하전표 조회 에러:', error);
+        res.status(500).json({
+            success: false,
+            message: '출하전표 조회 중 오류가 발생했습니다.'
         });
     }
 });

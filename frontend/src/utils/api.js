@@ -116,5 +116,10 @@ const slipAPI = {
     // 출하실적 상세 조회
     async getSlipDetail(shipmentNo) {
         return await api.get(`/api/slip/${shipmentNo}`);
+    },
+
+    // 출하전표 조회
+    async getTicket(shipmentNo) {
+        return await api.get(`/api/ticket/${shipmentNo}`);
     }
 };

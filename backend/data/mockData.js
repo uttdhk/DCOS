@@ -140,9 +140,18 @@ const mockSlips = [
     }
 ];
 
+// 출하전표 데이터
+const mockTickets = [
+    {
+        SHIPMENT_NO: 'SH20250902001',
+        TICKET_CONTENTS: `출하장 : 울산공장\r\n거래형태 : 판매\r\n\r\n예고번호 : SH20250902001\r\n출하일자 : 2025-09-02\r\n거래처 : GS칼텍스\r\n납지처 : 부산주유소\r\n\r\n제품명 : 휘발유(RON92)\r\n주문량 : 20,000 L\r\n실제량 : 19,850 L\r\n\r\n차량정보\r\n차량번호 : 12가3456\r\n기사명 : 김기사\r\n\r\n품질정보\r\n밀도 : 0.7450\r\n온도 : 15.2°C\r\n\r\n출하완료 확인\r\n출하시간 : 14:00\r\n확인자 : 출하담당자`
+    }
+];
+
 module.exports = {
     mockUsers,
     mockPlants,
     mockOrders,
-    mockSlips
+    mockSlips,
+    mockTickets
 };
